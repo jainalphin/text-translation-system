@@ -275,23 +275,21 @@ class MultilingualTranslator:
             for lang, translation in translations.items():
                 results[lang].append(translation)
 
-            # Get the actual translations if provided (ensure it's in a dictionary format)
-            actual_translation = {}
-            if actual_translation is not None and idx < len(actual_translation):
-                actual_translation = actual_translation[idx]
+            # Create translation pair dictionary with predicted and actual values
+            pair = {"input_text": source_text, "translations": {}}
 
-            # Create translation pair dictionary with actual and predicted translations
-            translations_with_actual_and_pred = {}
-            for lang in target_langs:
-                predicted_trans = translations.get(lang, "")
-                actual_trans = actual_translation.get(lang, "")
-                translations_with_actual_and_pred[f"{lang}_actual"] = actual_trans
-                translations_with_actual_and_pred[f"{lang}_pred"] = predicted_trans
+            # Add predicted translations
+            for lang, translation in translations.items():
+                pair["translations"][f"{lang}_pred"] = translation
 
-            pair = {
-                "input_text": source_text,
-                "translations": translations_with_actual_and_pred
-            }
+                # Check if actual translation exists in the dataframe
+                if lang in df.columns:
+                    actual_translation = row[lang]
+                    pair["translations"][f"{lang}_actual"] = actual_translation
+                else:
+                    # If no actual translation available, use predicted as placeholder or mark as None
+                    pair["translations"][f"{lang}_actual"] = None
+
             translation_pairs.append(pair)
 
             # Display some examples
@@ -300,6 +298,8 @@ class MultilingualTranslator:
                 self.logger.info(f"Source ({source_lang}): {source_text}")
                 for lang, translation in translations.items():
                     self.logger.info(f"Translation ({lang}): {translation}")
+                    if lang in df.columns:
+                        self.logger.info(f"Actual ({lang}): {row[lang]}")
 
         # Create output DataFrame (still useful for return value)
         results_df = pd.DataFrame(results)

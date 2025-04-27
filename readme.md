@@ -1,32 +1,39 @@
-# Multilingual Translator and Tokenizer Analysis
-This repository contains tools for multilingual translation (English-Hindi) and tokenizer analysis. The project includes two main components:
+# English-Hindi Legal Document Translator and Tokenizer Analysis
+This repository contains tools for legal document translation (English-Hindi) and tokenizer analysis. The project includes two main components:
 
-1. **Multilingual Translator**: Fine-tunes and evaluates neural machine translation models
-2. **Tokenizer Analysis Tool**: Compares different tokenizers' performance on multilingual text
+1. **Machine Translator**: Fine-tunes and evaluates neural machine translation models
+2. **Tokenizer Analysis**: Compares different tokenizers' performance on multilingual text
+
 
 ## Setup and Installation
 ```commandline
+git clone https://github.com/yourusername/text-translation-system.git
+
+# Change to project directory
 cd text-translation-system
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ## Dataset Download
 Use a sample English-Hindi dataset for experiments.
 
-Download it using:
-
 ```commandline
+# Install gdown for Google Drive downloads
 pip install gdown
+
+# Download the dataset
 gdown https://drive.google.com/uc?id=1fEnWm-S0-5dpHY3nRxegAA0ofAIDY180 -O "all_data_en_hin.csv"
 ```
 
 ## Usage
 
 ### 1. Token Analysis
-Navigate to token_analysis/ and run:
+Navigate to tokenizer_analysis/ directory and run:
 
 ```
-python token_analysis.py
+python tokenizer_comparison.py
 ```
 
 This will:
@@ -37,9 +44,17 @@ This will:
 * Save detailed CSV reports and generate plots.
 
 ### 2. Translation (Training & Inference)
-Navigate to training/ and run ```translator.py```
-*  For detailed instructions on translation tasks, please refer to the [readme.md](training/readme.md)
+Navigate to translation/ directory and run:
+```commandline
+python model_trainer.py --mode pipeline --data_file all_data_en_hin.csv --source_lang en --target_langs hi --output_dir ./my_translator_model
+```
+For detailed instructions on all translation tasks and options, please refer to the [Training Guide](translation/training_guide.md)
+
+## 3. Jupyter Notebooks
+* [English-Hindi Training Notebook](notebooks/en_hi_model_training.ipynb)
+* [English-Hindi Inference Notebook](notebooks/en_hi_model_inference.ipynb)
+
 
 ## Report:
 For a detailed analysis report, you can view it here:
-[Detailed Report](https://drive.google.com/file/d/186oOOCRAb1og_IF3IQwqrObA_GX163gI/view?usp=sharing)
+[Detailed Analysis Report](https://drive.google.com/file/d/1fEnWm-S0-5dpHY3nRxegAA0ofAIDY180/view?usp=sharing)
