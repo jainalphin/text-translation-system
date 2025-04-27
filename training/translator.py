@@ -126,7 +126,7 @@ class MultilingualTranslator:
 
     def finetune(self, df, val_df, source_lang, target_langs, output_dir="./finetuned_model",
                  epochs=1, batch_size=2, learning_rate=1e-5, max_samples=None,
-                 eval_steps=100, save_steps=500):
+                 eval_steps=500, save_steps=1000):
         """Fine-tune the model on the provided dataset"""
         # Sample data if needed
         if max_samples and max_samples < len(df):
