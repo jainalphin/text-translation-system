@@ -125,7 +125,7 @@ class MultilingualTranslator:
         return Dataset.from_dict(temp_data)
 
     def finetune(self, df, val_df, source_lang, target_langs, output_dir="./finetuned_model",
-                 epochs=1, batch_size=2, learning_rate=1e-5, max_samples=None,
+                 epochs=1, batch_size=1, learning_rate=1e-5, max_samples=None,
                  eval_steps=500, save_steps=1000):
         """Fine-tune the model on the provided dataset"""
         # Sample data if needed
@@ -155,7 +155,7 @@ class MultilingualTranslator:
             per_device_eval_batch_size=batch_size,
             num_train_epochs=epochs,
             weight_decay=0.01,
-            eval_strategy="epoch",
+            eval_strategy="no",
             eval_steps=eval_steps,
             save_strategy="epoch",
             save_steps=save_steps,
