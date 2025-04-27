@@ -15,10 +15,10 @@ from datetime import datetime
 
 
 # Configure logging
-def setup_logger(log_file=None):
+def setup_logger(log_file=None, logger_level=logging.DEBUG):
     """Set up and configure logger"""
     logger = logging.getLogger("translator")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logger_level)
 
     if logger.hasHandlers():
         logger.handlers.clear()

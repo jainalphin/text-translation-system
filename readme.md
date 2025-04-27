@@ -1,65 +1,45 @@
-# Report
+# Multilingual Translator and Tokenizer Analysis
+This repository contains tools for multilingual translation (English-Hindi) and tokenizer analysis. The project includes two main components:
 
-## 1. Tokenizer Analysis and Integration Strategy
+1. **Multilingual Translator**: Fine-tunes and evaluates neural machine translation models
+2. **Tokenizer Analysis Tool**: Compares different tokenizers' performance on multilingual text
 
-**Tokenizers Analyzed:**
-- mBART-50
-- IndicBERT
-- SUTRA
+## Setup and Installation
+```commandline
+cd text-translation-system
+pip install -r requirements.txt
+```
 
-**Evaluation Metrics:**
-- Vocabulary size comparison
-- Token-per-word ratio (efficiency)
-- Token length distribution
-- Character-per-token efficiency
-- Word-level inefficiency detection
+## Dataset Download
+Use a sample English-Hindi dataset for experiments.
 
-**Final Choice:**  
-After a detailed comparison, the **mBART-50 tokenizer** was selected for integration.  
-It offered the best balance between English and Hindi tokenization efficiency, while also ensuring compatibility with the chosen model architecture and minimizing token inflation across languages.
+Download it using:
 
----
+```commandline
+pip install gdown
+gdown https://drive.google.com/uc?id=1fEnWm-S0-5dpHY3nRxegAA0ofAIDY180 -O "all_data_en_hin.csv"
+```
 
-## 2. Model Selection and Training Methodology
+## Usage
 
-**Models Explored:**
-1. `facebook/mbart-large-50-many-to-many-mmt`
-2. mBART
+### 1. Token Analysis
+Navigate to token_analysis/ and run:
 
-**Key Observations:**
-- The original mBART model is relatively outdated, and its fine-tuning documentation was poorly maintained.
-- The **facebook/mbart-large-50-many-to-many-mmt** model is widely adopted for multilingual translation tasks, with better community support and updated resources.
-- Based on ease of access, fine-tuning stability, and proven success in translation tasks, **facebook/mbart-large-50-many-to-many-mmt** was selected.
+```
+python token_analysis.py
+```
 
----
+This will:
 
-## 3. Evaluation Approach
+* Download a small Hindi-English dataset from HuggingFace (higashi1/challenge_enHindi).
+* Initialize multiple tokenizers. 
+* Analyze vocabulary sizes, token-to-word ratios, token length distributions. 
+* Save detailed CSV reports and generate plots.
 
-**Metrics Used:**
-- **BLEU Score**: Measures n-gram overlap between generated and reference translations.
-- **chrF Score**: Measures character-level precision and recall, useful for morphologically rich languages like Hindi.
+### 2. Translation (Training & Inference)
+Navigate to training/ and run ```translator.py```
+*  For detailed instructions on translation tasks, please refer to the [readme.md](training/readme.md)
 
-Both metrics were calculated after model training to quantitatively assess translation quality.  
-Sample translations were also reviewed manually for qualitative assessment.
-
----
-
-## 4. Key Takeaways and Suggested Next Steps
-
-**Key Takeaways:**
-- Pretrained multilingual models like mBART-50 adapt effectively even with small-scale fine-tuning.
-- Tokenizer efficiency has a direct impact on training cost and sequence length.
-- Dataset size and quality are critical drivers of translation performance.
-
-**Next Steps:**
-- **Expand the Dataset**: Currently, only ~1000 records were used. Increasing data volume will significantly enhance performance.
-- **Improve Document Alignment**: Investigate better Hindi-English document alignment techniques, such as bilingual sentence alignment algorithms or semi-automated cleaning.
-
----
-
-# Submission Summary
-
-- Tokenizer evaluation and final selection completed
-- Model fine-tuning and translation pipeline developed
-- Evaluation reports generated using BLEU and chrF metrics
-- Recommendations for scaling and improvement provided
+## Report:
+For a detailed analysis report, you can view it here:
+[Detailed Report](https://drive.google.com/file/d/1VhVuYVkIJKHzI-BwbiIhKhMfd7NDmcyq/view?usp=sharing)
