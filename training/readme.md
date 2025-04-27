@@ -45,7 +45,7 @@ The column names should match the language codes you provide in the command line
 To split a single data file into train, validation, and test sets:
 
 ```bash
-python translator.py --mode split-data --data_file data.csv --output_dir ./data_splits --val_size 0.15 --test_size 0.15
+python training/translator.py --mode split-data --data_file data.csv --output_dir ./data_splits --val_size 0.15 --test_size 0.15
 ```
 
 ### Fine-tuning
@@ -53,7 +53,7 @@ python translator.py --mode split-data --data_file data.csv --output_dir ./data_
 Fine-tune the model with specific train and validation sets:
 
 ```bash
-python translator.py --mode finetune \
+python training/translator.py --mode finetune \
   --model facebook/mbart-large-50-many-to-many-mmt \
   --train_file ./data_splits/train.csv \
   --val_file ./data_splits/val.csv \
@@ -68,7 +68,7 @@ python translator.py --mode finetune \
 Or provide a single data file to be automatically split:
 
 ```bash
-python translator.py --mode finetune \
+python training/translator.py --mode finetune \
   --model facebook/mbart-large-50-many-to-many-mmt \
   --data_file data.csv \
   --source_lang en \
@@ -82,7 +82,7 @@ python translator.py --mode finetune \
 Translate a single text:
 
 ```bash
-python translator.py --mode translate \
+python training/translator.py --mode translate \
   --model ./finetuned_model/final \
   --source_lang en \
   --target_langs hi \
@@ -94,7 +94,7 @@ python translator.py --mode translate \
 Evaluate translation quality using reference translations:
 
 ```bash
-python translator.py --mode evaluate \
+python training/translator.py --mode evaluate \
   --model ./finetuned_model/final \
   --test_file ./data_splits/test.csv \
   --source_lang en \
@@ -107,7 +107,7 @@ python translator.py --mode evaluate \
 Run the complete pipeline from fine-tuning to evaluation:
 
 ```bash
-python translator.py --mode pipeline \
+python training/translator.py --mode pipeline \
   --model facebook/mbart-large-50-many-to-many-mmt \
   --data_file data.csv \
   --source_lang en \
@@ -120,7 +120,7 @@ python translator.py --mode pipeline \
 Or with pre-split data:
 
 ```bash
-python translator.py --mode pipeline \
+python training/translator.py --mode pipeline \
   --model facebook/mbart-large-50-many-to-many-mmt \
   --train_file ./data_splits/train.csv \
   --val_file ./data_splits/val.csv \
@@ -169,13 +169,13 @@ Fine-tune a model for English-to-Hindi translation and translate a sentence:
 
 ```bash
 # First, split your data
-python translator.py --mode split-data --data_file en_hi_data.csv --output_dir ./data
+python training/translator.py --mode split-data --data_file en_hi_data.csv --output_dir ./data
 
 # Fine-tune the model
-python translator.py --mode finetune --train_file ./data/train.csv --val_file ./data/val.csv --source_lang en --target_langs hi --output_dir ./en_hi_model --epochs 2
+python training/translator.py --mode finetune --train_file ./data/train.csv --val_file ./data/val.csv --source_lang en --target_langs hi --output_dir ./en_hi_model --epochs 2
 
 # Translate a sentence
-python translator.py --mode translate --model ./en_hi_model/final --source_lang en --target_langs hi --text "Machine learning is transforming the world."
+python training/translator.py --mode translate --model ./en_hi_model/final --source_lang en --target_langs hi --text "Machine learning is transforming the world."
 ```
 
 ### Example 2: Complete Pipeline
@@ -183,7 +183,7 @@ python translator.py --mode translate --model ./en_hi_model/final --source_lang 
 Run the complete pipeline for multi-target translation (English to Hindi):
 
 ```bash
-python translator.py --mode pipeline --data_file multi_lang_data.csv --source_lang en --target_langs hi --output_dir ./multilingual_model --epochs 3 --batch_size 4
+python training/translator.py --mode pipeline --data_file multi_lang_data.csv --source_lang en --target_langs hi --output_dir ./multilingual_model --epochs 3 --batch_size 4
 ```
 
 ## Tips for Best Results

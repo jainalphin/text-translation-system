@@ -7,6 +7,7 @@ from transformers import TrainingArguments, Trainer
 from datasets import Dataset
 import re
 import evaluate
+from nltk.translate.bleu_score import corpus_bleu
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 import logging
@@ -261,6 +262,9 @@ class MultilingualTranslator:
         self.logger.info(f"Translating {len(df)} examples...")
         results = {lang: [] for lang in target_langs}
 
+        # List to store input text and translations pairs
+        translation_pairs = []
+
         for idx, row in tqdm(df.iterrows(), total=len(df), desc="Translating"):
             source_text = self.preprocess_text(row[source_lang])
 
@@ -271,23 +275,59 @@ class MultilingualTranslator:
             for lang, translation in translations.items():
                 results[lang].append(translation)
 
+            # Get the actual translations if provided (ensure it's in a dictionary format)
+            actual_translation = {}
+            if actual_translation is not None and idx < len(actual_translation):
+                actual_translation = actual_translation[idx]
+
+            # Create translation pair dictionary with actual and predicted translations
+            translations_with_actual_and_pred = {}
+            for lang in target_langs:
+                predicted_trans = translations.get(lang, "")
+                actual_trans = actual_translation.get(lang, "")
+                translations_with_actual_and_pred[f"{lang}_actual"] = actual_trans
+                translations_with_actual_and_pred[f"{lang}_pred"] = predicted_trans
+
+            pair = {
+                "input_text": source_text,
+                "translations": translations_with_actual_and_pred
+            }
+            translation_pairs.append(pair)
+
             # Display some examples
-            if idx < 3 or idx % (len(df) // 10) == 0:
+            if idx < 3 or (len(df) >= 10 and idx % (len(df) // 10) == 0):
                 self.logger.info(f"----- Example {idx + 1}: -----")
                 self.logger.info(f"Source ({source_lang}): {source_text}")
                 for lang, translation in translations.items():
                     self.logger.info(f"Translation ({lang}): {translation}")
 
-        # Create output DataFrame
+        # Create output DataFrame (still useful for return value)
         results_df = pd.DataFrame(results)
 
         # Add source text to results
         results_df[source_lang] = df[source_lang].apply(self.preprocess_text)
 
-        # Save to file if requested
-        if output_file:
+        # Determine file extension if not specified
+        if output_file is None:
+            output_file = "translations.json"
+        elif not output_file.lower().endswith(('.json', '.csv')):
+            output_file += '.json'
+
+        # Save to file
+        if output_file.lower().endswith('.csv'):
+            # If explicitly asked for CSV
             results_df.to_csv(output_file, index=False)
-            self.logger.info(f"Translations saved to {output_file}")
+            self.logger.info(f"Translations saved to CSV: {output_file}")
+        else:
+            # Default to JSON
+            import json
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "source_language": source_lang,
+                    "target_languages": target_langs,
+                    "translation_pairs": translation_pairs
+                }, f, ensure_ascii=False, indent=2)
+            self.logger.info(f"Translations saved to JSON: {output_file}")
 
         return results_df
 
@@ -328,8 +368,8 @@ class MultilingualTranslator:
                         continue
 
                     # Add to valid examples
-                    all_references.append(clean_ref)
-                    all_predictions.append(clean_pred)
+                    all_references.append([clean_ref.split()])  # Each reference should be a list of words (wrapped in a list)
+                    all_predictions.append(clean_pred.split())  # Predictions should also be a list of words
                     valid_examples.append(i)
 
                 except Exception as e:
@@ -355,22 +395,18 @@ class MultilingualTranslator:
             chrf = evaluate.load("chrf")
 
             try:
-                # CRITICAL FIX: Format data correctly for the metrics
-                # For BLEU: each prediction needs to be tokenized, and each reference needs to be a list of tokenized strings
-                preds_for_bleu = [pred.split() for pred in all_predictions]
-                refs_for_bleu = [[ref.split()] for ref in
-                                 all_references]  # Double list: one list per example, one list per reference
+                # Calculate BLEU score (with proper tokenization)
+                bleu_score = corpus_bleu(all_references, all_predictions)
 
-                # For chrF: expects a list of strings for both references and predictions
-                refs_for_chrf = all_references
-                preds_for_chrf = all_predictions
+                # For chrF, convert tokenized lists back to strings
+                chrf_predictions = [' '.join(pred) for pred in all_predictions]
+                chrf_references = [[' '.join(ref[0])] for ref in all_references]
 
-                # Calculate metrics with correct formatting
-                bleu_score = bleu.compute(predictions=preds_for_bleu, references=refs_for_bleu)
-                chrf_score = chrf.compute(predictions=preds_for_chrf, references=refs_for_chrf)
+                # Calculate chrF score with string format
+                chrf_score = chrf.compute(predictions=chrf_predictions, references=chrf_references)
 
                 metrics[lang] = {
-                    "BLEU": bleu_score["bleu"],
+                    "BLEU": bleu_score,
                     "chrF": chrf_score["score"],
                     "valid_examples": len(valid_examples),
                     "error_examples": len(error_examples[lang])
@@ -378,7 +414,7 @@ class MultilingualTranslator:
 
                 # Log metrics
                 self.logger.info(f"Evaluation for target language: {lang}")
-                self.logger.info(f"BLEU score: {bleu_score['bleu']:.4f}")
+                self.logger.info(f"BLEU score: {bleu_score:.4f}")
                 self.logger.info(f"chrF score: {chrf_score['score']:.4f}")
                 self.logger.info(f"Valid examples: {len(valid_examples)} of {len(df)}")
                 self.logger.info(f"Skipped examples: {len(error_examples[lang])}")
@@ -705,7 +741,7 @@ def main():
 
         # Determine output file path if not provided
         if not args.output_file:
-            args.output_file = os.path.join(args.output_dir, "translations.csv")
+            args.output_file = os.path.join(args.output_dir, "translations.json")
 
         # Load test data
         try:
