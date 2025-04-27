@@ -42,4 +42,4 @@ Navigate to training/ and run ```translator.py```
 
 ## Report:
 For a detailed analysis report, you can view it here:
-[Detailed Report](https://drive.google.com/file/d/1VhVuYVkIJKHzI-BwbiIhKhMfd7NDmcyq/view?usp=sharing)
+[Detailed Report](https://drive.google.com/file/d/186oOOCRAb1og_IF3IQwqrObA_GX163gI/view?usp=sharing)
