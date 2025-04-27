@@ -155,7 +155,7 @@ class MultilingualTranslator:
             per_device_eval_batch_size=batch_size,
             num_train_epochs=epochs,
             weight_decay=0.01,
-            eval_strategy="epoch",
+            eval_strategy="no",
             eval_steps=eval_steps,
             save_strategy="best",
             save_steps=save_steps,
@@ -768,7 +768,7 @@ def main():
 
         # Reinitialize translator with fine-tuned model
         logger.info("Loading fine-tuned model...")
-        translator = MultilingualTranslator(model_name=os.path.join(args.output_dir, "final"), log_file=args.log_file)
+        translator = MultilingualTranslator(model_name=os.path.join(args.output_dir, "final"), logger=logger)
 
         # 2. Translate test data
         logger.info("===== STEP 2: BATCH TRANSLATION =====")
