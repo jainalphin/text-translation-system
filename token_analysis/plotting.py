@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+from scipy.stats import gaussian_kde
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -48,7 +50,7 @@ def plot_token_per_word_plotly(ratio_data, plots_dir):
 
 def plot_token_length_distribution_plotly(token_length_stats, plots_dir):
     """
-    Create and save histograms showing token length distribution across languages and tokenizers.
+    Create and save smooth density plots showing token length distribution across languages and tokenizers.
 
     Parameters
     ----------
@@ -62,35 +64,48 @@ def plot_token_length_distribution_plotly(token_length_stats, plots_dir):
 
     # Plot for English
     for name, stats in token_length_stats.items():
-        fig.add_trace(
-            go.Histogram(
-                x=stats["en"]["all_lengths"],
-                name=name,
-                histnorm='probability density',
-                opacity=0.6
-            ),
-            row=1, col=1
-        )
+        en_data = np.array(stats["en"]["all_lengths"])
+        if len(en_data) > 1:
+            en_kde = gaussian_kde(en_data)
+            en_x = np.linspace(en_data.min(), en_data.max(), 500)
+            en_y = en_kde(en_x)
+
+            fig.add_trace(
+                go.Scatter(
+                    x=en_x,
+                    y=en_y,
+                    mode='lines',
+                    name=name,
+                    line=dict(width=2)
+                ),
+                row=1, col=1
+            )
 
     # Plot for Hindi
     for name, stats in token_length_stats.items():
-        fig.add_trace(
-            go.Histogram(
-                x=stats["hi"]["all_lengths"],
-                name=name,
-                histnorm='probability density',
-                opacity=0.6,
-                showlegend=False  # Hide duplicate legends on second plot
-            ),
-            row=1, col=2
-        )
+        hi_data = np.array(stats["hi"]["all_lengths"])
+        if len(hi_data) > 1:
+            hi_kde = gaussian_kde(hi_data)
+            hi_x = np.linspace(hi_data.min(), hi_data.max(), 500)
+            hi_y = hi_kde(hi_x)
+
+            fig.add_trace(
+                go.Scatter(
+                    x=hi_x,
+                    y=hi_y,
+                    mode='lines',
+                    name=name,
+                    showlegend=False,  # Hide duplicate legends
+                    line=dict(width=2)
+                ),
+                row=1, col=2
+            )
 
     fig.update_layout(
         title_text="Token Length Distribution (English vs Hindi)",
         height=500,
         width=1000,
-        template='plotly_white',
-        barmode='overlay'
+        template='plotly_white'
     )
 
     fig.update_xaxes(title_text="Number of Tokens", row=1, col=1)
