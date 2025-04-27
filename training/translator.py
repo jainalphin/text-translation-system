@@ -155,7 +155,7 @@ class MultilingualTranslator:
             per_device_eval_batch_size=batch_size,
             num_train_epochs=epochs,
             weight_decay=0.01,
-            eval_strategy="no",
+            eval_strategy="epoch",
             eval_steps=eval_steps,
             save_strategy="best",
             save_steps=save_steps,
