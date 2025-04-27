@@ -155,19 +155,17 @@ class MultilingualTranslator:
             per_device_eval_batch_size=batch_size,
             num_train_epochs=epochs,
             weight_decay=0.01,
-            eval_strategy="no",
+            eval_strategy="epoch",
             eval_steps=eval_steps,
-            save_strategy="epoch",
+            save_strategy="best",
             save_steps=save_steps,
             save_total_limit=1,
             load_best_model_at_end=True,
-            metric_for_best_model="eval_loss",
             no_cuda=(self.device == "cpu"),
-            gradient_accumulation_steps=8,
+            gradient_accumulation_steps=4,
             fp16=(self.device != "cpu"),
             report_to="none",  # Disable W&B
             logging_dir=os.path.join(output_dir, "logs"),
-            logging_steps=50,
             remove_unused_columns=False
         )
 
