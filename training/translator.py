@@ -159,11 +159,11 @@ class MultilingualTranslator:
             eval_steps=eval_steps,
             save_strategy="epoch",
             save_steps=save_steps,
-            save_total_limit=2,
+            save_total_limit=1,
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss",
             no_cuda=(self.device == "cpu"),
-            gradient_accumulation_steps=4,
+            gradient_accumulation_steps=8,
             fp16=(self.device != "cpu"),
             report_to="none",  # Disable W&B
             logging_dir=os.path.join(output_dir, "logs"),
